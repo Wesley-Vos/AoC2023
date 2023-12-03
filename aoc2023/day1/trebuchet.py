@@ -22,25 +22,13 @@ class Trebuchet:
                 self.raw_document = input_file.read().splitlines()
 
         def _fix_document(self, convert_digits) -> None:
-            re_pattern = "1|2|3|4|5|6|7|8|9"
-            replace_mapping = {
-                "one": '1',
-                "two": '2',
-                "three": '3',
-                "four": '4',
-                "five": '5',
-                "six": '6',
-                "seven": '7',
-                "eight": '8',
-                "nine": '9'
-            }
+            re_pattern = "1|2|3|4|5|6|7|8|9" + ('|one|two|three|four|five|six|seven|eight|nine' if convert_digits else "")
+            mapping = {n: (i % 9) + 1 for i, n in enumerate(re_pattern.split('|'))}
 
             def _execute(line, pattern) -> int:
-                _replace = lambda x: x if x.isdigit() else replace_mapping[x]
                 matches = re.findall(pattern, line, overlapped=True)
-                return int(_replace(matches[0]) + _replace(matches[-1]))
+                return (mapping.get(matches[0]) * 10) + mapping.get(matches[-1])
 
-            re_pattern = re_pattern + ('|'.join(replace_mapping.keys()) if convert_digits else "")
             self.document = [_execute(line, re_pattern) for line in self.raw_document]
 
         def run(self) -> int:
